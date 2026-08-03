@@ -1,7 +1,10 @@
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv"
+
+dotenv.config();
 export default function authenticateUser(req, res, next) {
 
-    const header = req.header("Authorization");{
+    const header = req.header("Authorization")
    
    
 
@@ -9,7 +12,7 @@ export default function authenticateUser(req, res, next) {
 
             const token = header.replace("Bearer ", "");
 
-            jwt.verify(token, "I-CoMputerS10Batch" ,
+            jwt.verify(token, process.env.JWT_SECRET ,
                 (error, decoded)=>{
                     console.log(decoded);
                     if(decoded == null){
@@ -32,4 +35,4 @@ export default function authenticateUser(req, res, next) {
         }
     }    
 
-}                  
+                 
