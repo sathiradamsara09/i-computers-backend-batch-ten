@@ -3,8 +3,10 @@ import Product from '../models/product.js';
 import { isAdmin } from "./userController.js";
 export async function createProduct(req,res){
 
+   
 
     try{
+        
       
         const existingProduct = await Product.findOne({ 
             productId : req.body.productId 
@@ -32,6 +34,7 @@ export async function createProduct(req,res){
         });
 
         await newProduct.save();
+       
         res.status(201).json({
             message : "Product created successfully."
         });
