@@ -49,11 +49,18 @@ export async function createProduct(req,res){
 
 export async function getAllProducts(req,res){
     try{
+
+        console.log("Fetching products...");
+
         const products = await Product.find();
+
+        console.log("Products fetched Successfully:", products);
 
         res.json(products);
 
     }catch(error){
+
+        console.log("Error fetching products:", error)
         res.status(500).json({
             message : "Error fetching products"
         })
@@ -112,7 +119,7 @@ export async function deleteProduct(req,res){
 
         })
         res.json({
-            messege : "Product updated successfully.",
+            message : "Product updated successfully.",
         })
 
      }catch(error){
