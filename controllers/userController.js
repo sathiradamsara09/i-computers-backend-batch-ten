@@ -3,6 +3,7 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
 
+
 dotenv.config();
 
 export async function createUser(req,res){
@@ -98,6 +99,87 @@ export async function loginUser(req,res){
         
     }
 }
+
+export async function getUserData(req,res){
+
+    if(req.user == null){
+        res.status(401).json({
+            message : "Unauthorized"
+        })
+    }else{
+        res.json(req.user)
+    }
+}
+
+export async function updateUserData(req,res){
+    if(req.user == null){
+        res.status(401).json({
+            message : "Unauthorized"
+        })
+    }else{
+        try{
+            await User.findOneAndUpdate(
+               { email : req.user.email },
+               { firstName : req.body.firstName, lastName : req.body.lastName, image : req.body.image }
+            )
+
+            // Users existing token contains old information. But in here we have updated the user data. So we will generate a new token with updated information and send it to the user.
+
+            const updatedUser = await User.findOne({ email : req.user.email })
+
+            const token = jwt.sign({
+                email : updatedUser.email,
+                firstName : updatedUser.firstName,
+                lastName : updatedUser.lastName,
+                isAdmin : updatedUser.isAdmin,
+                isBlocked : updatedUser.isBlocked,
+                isEmailVerified : updatedUser.isEmailVerified,
+                image : updatedUser.image
+
+            }, process.env.JWT_SECRET , {
+                //48hours"
+                expiresIn : "48h" }
+            )
+
+            res.json({
+                message : "User data updated successfully",
+                token : token
+            })
+            
+        }catch(error){
+            res.status(500).json({
+                message : "Error updating user data"
+            })
+    }
+    }
+}
+        
+export async function changePassword(req,res){
+    if(req.user == null){
+        return res.status(401).json({
+            message : "Unauthorized"
+        })
+    }
+        try{
+            
+            const hashPassword = bcrypt.hashSync(req.body.newPassword,10);
+
+            await User.findOneAndUpdate(
+                { email : req.user.email },
+                { password : hashPassword }
+            )
+            res.json({
+                message : "Password changed successfully"
+            })
+        }catch(error){
+            res.status(500).json({
+                message : "Error changing password"
+            })
+        }
+}      
+
+                
+            
 
 export function isAdmin(req){
     if(req.user == null){
